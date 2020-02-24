@@ -14,6 +14,8 @@ services:
   redis:
     image: redis:latest
   api:
+    depends_on:
+      - postgres
     build:
       context: ./server
       dockerfile: Dockerfile.dev
@@ -42,3 +44,6 @@ services:
     volumes:
       - /app/node_modules
       - ./worker:/app
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379

@@ -1,0 +1,20 @@
+sudo: required
+services:
+  - docker
+
+before_install:
+  - docker build -t bntzio/docker-fibonacci-app-test -f ./client/Dockerfile.dev ./client
+
+script:
+  - docker run -e CI=true bntzio/docker-fibonacci-app-test yarn test
+
+after_success:
+  - docker build -t bntzio/docker-fibonacci-app-nginx ./nginx
+  - docker build -t bntzio/docker-fibonacci-app-client ./client
+  - docker build -t bntzio/docker-fibonacci-app-server ./server
+  - docker build -t bntzio/docker-fibonacci-app-worker ./worker
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  - docker push bntzio/docker-fibonacci-app-nginx
+  - docker push bntzio/docker-fibonacci-app-client
+  - docker push bntzio/docker-fibonacci-app-server
+  - docker push bntzio/docker-fibonacci-app-worker
